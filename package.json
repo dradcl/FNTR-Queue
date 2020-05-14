@@ -1,0 +1,15 @@
+{
+  "name": "fntr-queue-2",
+  "version": "1.0.0",
+  "description": "Fortnite lobby bot for the FNTR Offical Discord Server",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Karma Kitten",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^12.2.0",
+    "fortnitenode": "^4.20.0"
+  }
+}
