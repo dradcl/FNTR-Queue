@@ -3,7 +3,10 @@ const Discord = require('discord.js');
 const client = new Discord.Client()
 const fs = require('fs')
 const request = require('request');
-players = [];
+const MIN_PLAYERS = 2;
+const PUBLIC_CHANNEL_ID = '617341908884389908';
+const ADMIN_CHANNEL_ID = '650615163283570689';
+var players = [];
 var itemList = '';
 
 const fortnite = new Fortnite({
@@ -58,7 +61,13 @@ let newItems = request('https://benbotfn.tk/api/v1/newCosmetics',{ json: true },
           fortnite.party.kick(member.id);
         }
       });
-    });
+      if (players.length >= MIN_PLAYERS) {  // If player count is at least MIN_PLAYERS, start a 1.5 minute countdown before bot auto disconnect
+        setTimeout(function() {
+          fortnite.party.leave(true);
+          players = [];
+        }, 5000);
+       }
+      });
 
     // Player ready state changes
     /*fortnite.stream.on('member#state', async (member) => {
@@ -104,7 +113,7 @@ let newItems = request('https://benbotfn.tk/api/v1/newCosmetics',{ json: true },
       var args = message.content.split(" ")
 
       // Private Commands, for staff and community support only in #lobby channel
-      if (message.member.roles.cache.some(role => role.id === '614174010204225716') || message.member.roles.cache.some(role => role.id === '642737555728629772') && (message.channel.id === '650615163283570689')) {
+      if (message.member.roles.cache.some(role => role.id === '614174010204225716') || message.member.roles.cache.some(role => role.id === '642737555728629772') && (message.channel.id === ADMIN_CHANNEL_ID)) {
         switch (args[0]) {
           case "+listplayers":
             for (var player in players) {
@@ -112,7 +121,7 @@ let newItems = request('https://benbotfn.tk/api/v1/newCosmetics',{ json: true },
               var displayName = profile.displayName;
               dPlayers += displayName + ': ' + players[player] + '\n'
             }
-            client.channels.cache.get('650615163283570689').send({
+            client.channels.cache.get(ADMIN_CHANNEL_ID).send({
               embed: {
                 color: 3066993,
                 title: "Users in the lobby",
@@ -125,7 +134,7 @@ let newItems = request('https://benbotfn.tk/api/v1/newCosmetics',{ json: true },
               fortnite.party.kick(args[1]);
               var profile = await fortnite.launcher.getAccount(args[1]); 
               var displayName = profile.displayName;
-              client.channels.cache.get('650615163283570689').send({
+              client.channels.cache.get(ADMIN_CHANNEL_ID).send({
                 embed: {
                   color: 3066993,
                   title: "User kicked from lobby",
@@ -151,7 +160,7 @@ let newItems = request('https://benbotfn.tk/api/v1/newCosmetics',{ json: true },
                 }
               });
             });
-            client.channels.cache.get('650615163283570689').send({
+            client.channels.cache.get(ADMIN_CHANNEL_ID).send({
               embed: {
                 color: 3066993,
                 title: "User has been banned",
@@ -171,7 +180,7 @@ let newItems = request('https://benbotfn.tk/api/v1/newCosmetics',{ json: true },
               fs.writeFile('./blacklist.json', JSON.stringify(wUsers), err => {
               });
             });
-            client.channels.cache.get('650615163283570689').send({
+            client.channels.cache.get(ADMIN_CHANNEL_ID).send({
               embed: {
                 color: 3066993,
                 title: "User has been unbanned",
@@ -183,10 +192,10 @@ let newItems = request('https://benbotfn.tk/api/v1/newCosmetics',{ json: true },
         }
       }
       // Public Commands, for everyone in #commands channel
-      else if(message.channel.id === '617341908884389908') {
+      else if(message.channel.id === PUBLIC_CHANNEL_ID) {
         switch (args[0]) {
           case "+newitems":
-              client.channels.cache.get('617341908884389908').send({
+              client.channels.cache.get(PUBLIC_CHANNEL_ID).send({
                 embed: {
                   color: 3066993,
                   title: "New Item IDs for Bot",
@@ -196,7 +205,7 @@ let newItems = request('https://benbotfn.tk/api/v1/newCosmetics',{ json: true },
               });
             break;
           case "+whatis":
-            client.channels.cache.get('617341908884389908').send({
+            client.channels.cache.get(PUBLIC_CHANNEL_ID).send({
               embed: {
                 color: 3066993,
                 title: "What is this bot?",
@@ -210,7 +219,7 @@ let newItems = request('https://benbotfn.tk/api/v1/newCosmetics',{ json: true },
             });
             break;
           case "+items":
-            client.channels.cache.get('617341908884389908').send({
+            client.channels.cache.get(PUBLIC_CHANNEL_ID).send({
               embed: {
                 color: 3066993,
                 title: "List of all Fortnite item IDs",
@@ -221,7 +230,7 @@ let newItems = request('https://benbotfn.tk/api/v1/newCosmetics',{ json: true },
             break;
           case "+help":
             if (args[1] == "fortnite") {
-              client.channels.cache.get('617341908884389908').send({
+              client.channels.cache.get(PUBLIC_CHANNEL_ID).send({
                 embed: {
                   color: 3066993,
                   title: "FNTR Fortnite Bot Commands",
@@ -248,7 +257,7 @@ let newItems = request('https://benbotfn.tk/api/v1/newCosmetics',{ json: true },
                 }
               });              
             } else {
-              client.channels.cache.get('617341908884389908').send({
+              client.channels.cache.get(PUBLIC_CHANNEL_ID).send({
                 embed: {
                   color: 3066993,
                   title: "FNTR Discord Bot Commands",
